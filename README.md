@@ -2,7 +2,7 @@
 This is the distribution repository for Virtual Monopoly Deal where you can get the .jar file from the dist folder to run the game without compiling it yourself.
 
 ## How to Use
-To run the program, open up cmd and type:
+To run the program, clone the project then open up cmd and type:
 
 - java -jar "path\to\Virtual-Monopoly-Deal\Virtual Monopoly Deal\dist\Virtual_Monopoly_Deal.jar"
 
