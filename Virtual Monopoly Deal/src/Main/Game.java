@@ -63,50 +63,36 @@ public class Game {
         bot_2Turn = false;
         winnerFound = false;
         playCount = 0;
+        name = null;
         
-        runGame();
     }
     
     /**
      * Runs the main game logic.
      */
-    public void runGame(){
+    public boolean runGame(){
         
         MM.setVisible(true);
         
+        //gets player name, number of players, and difficulty level.
+        getGameSetUp();
+
+        //create deck Object
+        createDeck();
+
+        //make players and bot objects.
+        createPlayersAndBots();
+
+        //sets the players hand in gameplay screen to their cards
+        setPlayerHand();
+
+        System.out.println("Entering main game loop"); //for testing
+
+        //main game loop.
         try{
-            boolean p_first_turn = true;
-            //get game setup info, player name, player count.
-            while(numberOfPlayers == 0 || difficultyLevel == 0){
-                numberOfPlayers = GPS.getNumberOfPlayers();
-                difficultyLevel = GPS.getDifficultyLevel();
-                name = GPS.getPlayerName();
-            //    checkNumberOfPlayers();//gets player count.
-            //    checkDifficultyLevel();
-            //    checkPlayerName();//gets player name.   
-            }
-            System.out.println("Name: "+name);
-            System.out.println("Diff level: "+difficultyLevel); //for testing
-            System.out.println("Number of players: "+numberOfPlayers); //for testing
-
-            //set player name on GPS
-        //    GPS.setPlayerName(name);
-
-            //create deck Object
-            createDeck();
-
-            //make players and bot objects.
-            createPlayersAndBots();
-
-            //sets the players hand in gameplay screen to their cards
-            setPlayerHand();
-
-            System.out.println("Entering main game loop"); //for testing
-
-            //main game loop.
-      //      int bcount = 0;
             boolean p_dealed = false;
             boolean b_dealed = false;
+            boolean p_first_turn = true;
 
             while(winnerFound == false){
                 if(playerTurn){
@@ -177,69 +163,81 @@ public class Game {
                 }
                 winnerFound = checkForWinner();
 
+                //cheat button to auto win game.
+                if (GPS.getMakeMeWinner() == true){
+                    winner = player;
+                    winnerFound = true;
+                }
+                
             }
-
-            //reset pre game state incase player plays again
-        //    PlayScreen.toGamePlayScreen = true;
-
+        }
+        catch(Exception e){
+                System.out.println("Error during taking turns loop in Game.java e: "+e);
+        }
+        
+        //Once winner is found, continue
+        try{
             //display winner screen
             GPS.displayWinnerScreen(winner.getName(), winner.getTotalMoney(), winner.getCompletedProperties());
             
+            //wait to see if player wants to play again.
             while (GPS.getPlayAgain() != true){
-                //do nothing, wait for user to click play again or exit game.
-                //clears terminal
-                System.out.println("");
+               try{
+                    System.out.println("Sleeping...");
+                    Thread.sleep(500); 
+                }
+                catch(InterruptedException e){
+                    System.out.println("Something happened while sleeping. e: "+e);
+                }
             }
             
-            //reset game if user wants to play again.
-            resetGame();
+            //Returns true back to Main.java, letting it know to reset game if user wants to play again.
+            return true;
+
         }
         catch (Exception e){
-            System.out.println("Something went wrong: "+e);
+            System.out.println("Error when displaying winner and waiting to play again in Game.java e: "+e);
         }
         
+        //if failed.
+        return false;
         
     }
     
-    
-    
     /**
-     * Will get the number of players to play against from PlayScreen.java
+     * Gets the game set up.
+     * Gets the player name, number of players, and difficulty level.
      */
-  /*  private void checkNumberOfPlayers(){
-        if(PlayScreen.toGamePlayScreen == false){
-                numberOfPlayers = PlayScreen.numberOfPlayers;
-             //   System.out.println(); //for some reason, this println statement is needed here inorder for the loop this method is in to exit properly when it's suppose to........
+    private void getGameSetUp(){
+        try{
+            //get game setup info, player name, player count.
+            while(numberOfPlayers == 0 || difficultyLevel == 0 || name.equals(null)){
+                numberOfPlayers = GPS.getNumberOfPlayers();
+                difficultyLevel = GPS.getDifficultyLevel();
+                name = GPS.getPlayerName();
+                
+                try{
+                 //   System.out.println("Getting player name, num of players, and diff level...");
+                    Thread.sleep(100); 
+                }
+                catch(InterruptedException e){
+                    System.out.println("Something happened while sleeping. e: "+e);
+                }
+            //    checkNumberOfPlayers();//gets player count.
+            //    checkDifficultyLevel();
+            //    checkPlayerName();//gets player name.   
+            }
+            System.out.println("Name: "+name);
+            System.out.println("Diff level: "+difficultyLevel); //for testing
+            System.out.println("Number of players: "+numberOfPlayers); //for testing
         }
-        else{ //pre game state is over, set to false.
-            inPreGameState = false;
+        catch(Exception e){
+                System.out.println("Error in getGameSetUp() in Game.java. e: "+e);
+                System.out.println("Name: "+name);
+                System.out.println("Diff level: "+difficultyLevel); //for testing
+                System.out.println("Number of players: "+numberOfPlayers); //for testing
         }
-        
-    } */
-    
-   /*  private void checkDifficultyLevel(){
-        if(PlayScreen.toGamePlayScreen == false){
-                difficultyLevel = PlayScreen.difficultyLevel;
-             //   System.out.println(); //for some reason, this println statement is needed here inorder for the loop this method is in to exit properly when it's suppose to........
-        }
-        else { //pre game state is over, set to false.
-            inPreGameState = false;
-        }
-        
-    } */
-    
-    /**
-     * Will get the name the user inputted from PlayScreen.
-     */
-  /*  private void checkPlayerName(){
-        
-        if(PlayScreen.toGamePlayScreen == false){
-            name = PlayScreen.playerName;
-        }
-        else{ //pre game state is over, set to false.
-            inPreGameState = false;
-        }
-    } */
+    }
     
     /**
      * Checks for a winner
@@ -288,55 +286,67 @@ public class Game {
      * Also deals each player their 5 starting cards.
      */
     private void createPlayersAndBots(){
-        //create player and bots.
-        if (numberOfPlayers > 0){
-            //make player and set player name.
-            player = new Player();
-            player.setName(name);
-            
-           //add 5 cards to player hand
-            for(int i = 0; i < 5;i++){
-                player.addToHand(gameDeck.getTopCard());
-            }
-            
-            //make bot 1
-            bot_1 = new Bot();
-            bot_1.setDifficulty(difficultyLevel);
-            bot_1.setName("bot_1");
-            
-            //add 5 cards to Bot_1 hand
-            for(int i = 0; i < 5;i++){
-                bot_1.addToHand(gameDeck.getTopCard());
-            }
-            
-            //if player selected to play with 3 total players, then make the 2nd bot.
-            if (numberOfPlayers == 3){
-                bot_2 = new Bot();
-                bot_2.setDifficulty(difficultyLevel);
-                bot_2.setName("bot_2");
-                
-                //add 5 cards to Bot_2 hand
+        try {
+            //create player and bots.
+            if (numberOfPlayers > 0){
+                //make player and set player name.
+                player = new Player();
+                player.setName(name);
+
+               //add 5 cards to player hand
                 for(int i = 0; i < 5;i++){
-                    bot_2.addToHand(gameDeck.getTopCard());
+                    player.addToHand(gameDeck.getTopCard());
+                }
+
+                //make bot 1
+                bot_1 = new Bot();
+                bot_1.setDifficulty(difficultyLevel);
+                bot_1.setName("bot_1");
+
+                //add 5 cards to Bot_1 hand
+                for(int i = 0; i < 5;i++){
+                    bot_1.addToHand(gameDeck.getTopCard());
+                }
+
+                //if player selected to play with 3 total players, then make the 2nd bot.
+                if (numberOfPlayers == 3){
+                    bot_2 = new Bot();
+                    bot_2.setDifficulty(difficultyLevel);
+                    bot_2.setName("bot_2");
+
+                    //add 5 cards to Bot_2 hand
+                    for(int i = 0; i < 5;i++){
+                        bot_2.addToHand(gameDeck.getTopCard());
+                    }
+                }
+                else{
+                    GPS.hideThirdPlayer();
                 }
             }
-            else{
-                GPS.hideThirdPlayer();
+            else{ //if numberOfPlayers was some how not > 0 after player selected amount of players. Will happen if player hits "Go" while not selecting number of players from PlayScreen.java
+                System.out.println("Error when making player and bots. NumberOfPlayers = "+numberOfPlayers);
             }
         }
-        else{ //if numberOfPlayers was some how not > 0 after player selected amount of players. Will happen if player hits "Go" while not selecting number of players from PlayScreen.java
-            System.out.println("Error when making player and bots. NumberOfPlayers = "+numberOfPlayers);
+        catch(Exception e){
+            System.out.println("Error in createPlayersAndBots() in Game.java e: "+e);
         }
+        
     }
     
     /**
      * Creates the game play deck.
      */
     private void createDeck(){
-        gameDeck = new Deck();
-        gameDeck.fillDeck();
-        gameDeck.shuffle();
+        try{
+            gameDeck = new Deck();
+            gameDeck.fillDeck();
+            gameDeck.shuffle();
     //    gameDeck.printCards();
+        }
+        catch(Exception e){
+            System.out.println("Error in createDeck() in Game.java e: "+e);
+        }
+        
     }
     
     /**
@@ -345,9 +355,9 @@ public class Game {
     private void setPlayerHand(){
         ArrayList cardImagePaths = new ArrayList();
         Card c;
-        List<Card> hand = player.getHand();
         
         try{
+            List<Card> hand = player.getHand();
             for (int i=0; i<hand.size(); i++){
                 c = hand.get(i);
                 
@@ -361,7 +371,7 @@ public class Game {
             GPS.setPlayerStartingHand(cardImagePaths);
         }
         catch(Exception e){
-            System.out.println("Error when setting player hand with card images in GPS. e:"+e);
+            System.out.println("Error when setting player hand with card images in GPS in Game.java. e:"+e);
         }
         
         
@@ -681,9 +691,11 @@ public class Game {
         
         //display player money count
         GPS.setYourTotalMoney(p.getTotalMoney(), p.getName());
+        System.out.println("Player GUI total money updated.");
         
         //display card in GUI
         GPS.displayPlayedMoneyCard(c.getImagePath(), p.getName());
+        System.out.println("Card image updated in GUI.");
         
         //remove card image from player's hand in GUI if human.
         if (p.isHuman() == true){
@@ -780,28 +792,34 @@ public class Game {
      */
     private void drawCard(Player p){
         
-        //capture card to play
-        List<Card> hand = p.getHand();
-        for (Card c : hand){
-            if (c == null){
-                //capture card to draw.
-                Card card = gameDeck.getTopCard();
-                
-                //draw card
-                p.drawCard(card);
+        try{
+            //capture card to play
+            List<Card> hand = p.getHand();
+            for (Card c : hand){
+                if (c == null){
+                    //capture card to draw.
+                    Card card = gameDeck.getTopCard();
 
-                //add card to hand in GUI if player's turn
-                if (playerTurn == true){
-                    GPS.addCardImageToHand(card.getImagePath());
+                    //draw card
+                    p.drawCard(card);
+
+                    //add card to hand in GUI if player's turn
+                    if (playerTurn == true){
+                        GPS.addCardImageToHand(card.getImagePath());
+                    }
+
+
+                    //returns out of method once added
+                    return;
                 }
-                
-                
-                //returns out of method once added
-                return;
             }
+            //if no free hand slot was found, will reach this sys out stmt
+            System.out.println("Card was not drawn: player hand is full");
         }
-        //if no free hand slot was found, will reach this sys out stmt
-        System.out.println("Card was not drawn: player hand is full");
+        catch(Exception e){
+            System.out.println("Error in drawCard() in Game.java e: "+e);
+        }
+        
     }
 
     private void endTurnEarly() {
@@ -811,11 +829,14 @@ public class Game {
     
     public void resetGame(){
         System.out.println("Resetting game...");
+        player = null;
+        bot_1 = null;
+        bot_2 = null;
         init();
     }
     
-    public static void main(String[] args){
+ /*   public static void main(String[] args){
         Game g = new Game();
-    }
+    } */
    
 }

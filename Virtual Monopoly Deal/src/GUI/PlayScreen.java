@@ -38,6 +38,7 @@ public class PlayScreen extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        invalidInputsLabel = new javax.swing.JLabel();
         jTextField1 = new javax.swing.JTextField();
         selectedPlayerOptions = new javax.swing.JLabel();
         selectedGameModeOption = new javax.swing.JLabel();
@@ -51,6 +52,13 @@ public class PlayScreen extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        invalidInputsLabel.setBackground(new java.awt.Color(204, 0, 0));
+        invalidInputsLabel.setFont(new java.awt.Font("Dialog", 1, 18)); // NOI18N
+        invalidInputsLabel.setForeground(new java.awt.Color(153, 0, 0));
+        invalidInputsLabel.setText("Please select amount of players or difficulty level or enter a name.");
+        invalidInputsLabel.setVisible(false);
+        getContentPane().add(invalidInputsLabel, new org.netbeans.lib.awtextra.AbsoluteConstraints(1320, 840, -1, -1));
 
         jTextField1.setFont(new java.awt.Font("Tahoma", 0, 36)); // NOI18N
         jTextField1.addActionListener(new java.awt.event.ActionListener() {
@@ -148,13 +156,19 @@ public class PlayScreen extends javax.swing.JFrame {
         //gets playerName from text field
         playerName = jTextField1.getText();
         
-    //    GPS = Main.Main.GPS;
-        GPS.setNumberOfPlayers(numberOfPlayers);
-        GPS.setDifficultyLevel(difficultyLevel);
-        GPS.setPlayerName(playerName);
-        GPS.setVisible(true);
-    //    toGamePlayScreen = true;
-        dispose();//closes the jframe
+        if (!playerName.equals(null) && !playerName.equals("") && numberOfPlayers>0 && difficultyLevel>0){
+        //    GPS = Main.Main.GPS;
+            GPS.setNumberOfPlayers(numberOfPlayers);
+            GPS.setDifficultyLevel(difficultyLevel);
+            GPS.setPlayerName(playerName);
+            GPS.setVisible(true);
+        //    toGamePlayScreen = true;
+            dispose();//closes the jframe
+        }
+        else {
+            invalidInputsLabel.setVisible(true);
+        }
+    
     }//GEN-LAST:event_goButtonActionPerformed
 
     private void threePlayersActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_threePlayersActionPerformed
@@ -231,6 +245,7 @@ public class PlayScreen extends javax.swing.JFrame {
     private javax.swing.JButton easyButton;
     private javax.swing.JButton goButton;
     private javax.swing.JButton hardButton;
+    private javax.swing.JLabel invalidInputsLabel;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JTextField jTextField1;
     private javax.swing.JLabel selectedGameModeOption;

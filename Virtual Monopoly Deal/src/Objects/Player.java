@@ -171,6 +171,7 @@ public class Player{
         for (Card c : hand){ 
             if (c == card){
                 hand.set(i, null); //set card to null
+                System.out.println("Card removed from hand.");
                 return;
             }
             i++;

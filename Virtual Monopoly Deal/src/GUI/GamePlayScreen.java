@@ -33,6 +33,7 @@ public class GamePlayScreen extends javax.swing.JFrame {
     private HashMap<String, javax.swing.JButton> player3Properties = new HashMap<>(); //used to store player 2 property buttons
     private String playerName;
     private WinnerScreen WS;
+    private boolean makeMeWinner = false; //used to cheat and become winner.
 
     /**
      * Creates new form GamePlayScreen
@@ -195,6 +196,7 @@ public class GamePlayScreen extends javax.swing.JFrame {
     private void initComponents() {
 
         jLayeredPane1 = new javax.swing.JLayeredPane();
+        make_me_win = new javax.swing.JButton();
         confirmExitPanel = new javax.swing.JPanel();
         areYouSureLabel = new javax.swing.JLabel();
         yesToExitButton = new javax.swing.JButton();
@@ -429,6 +431,14 @@ public class GamePlayScreen extends javax.swing.JFrame {
 
         jLayeredPane1.setPreferredSize(new java.awt.Dimension(1920, 1080));
         jLayeredPane1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        make_me_win.setText("Make me win");
+        make_me_win.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                make_me_winActionPerformed(evt);
+            }
+        });
+        jLayeredPane1.add(make_me_win, new org.netbeans.lib.awtextra.AbsoluteConstraints(1230, 10, -1, -1));
 
         confirmExitPanel.setBackground(new java.awt.Color(153, 0, 0));
         confirmExitPanel.setBorder(javax.swing.BorderFactory.createMatteBorder(2, 2, 2, 2, new java.awt.Color(255, 255, 255)));
@@ -3382,6 +3392,10 @@ public class GamePlayScreen extends javax.swing.JFrame {
         endTurnEarlyPressed = true;
     }//GEN-LAST:event_endTurnEarlyButtonActionPerformed
 
+    private void make_me_winActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_make_me_winActionPerformed
+        makeMeWinner = true;
+    }//GEN-LAST:event_make_me_winActionPerformed
+
     /**
      * Set player starting hand visually in GUI.
      * @param cardImagePaths 
@@ -3554,6 +3568,10 @@ public class GamePlayScreen extends javax.swing.JFrame {
     
     public boolean getPlayAgain(){
         return WS.getPlayAgain();
+    }
+    
+    public boolean getMakeMeWinner(){
+        return makeMeWinner;
     }
     
     /**
@@ -3820,6 +3838,7 @@ public class GamePlayScreen extends javax.swing.JFrame {
     private javax.swing.JButton hideHandButton;
     private javax.swing.JButton howToPlayButton;
     private javax.swing.JLayeredPane jLayeredPane1;
+    private javax.swing.JButton make_me_win;
     private javax.swing.JLabel menuLabel;
     private javax.swing.JPanel menuPanel;
     private javax.swing.JLabel moneyEmblem;
